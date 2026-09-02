@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Communication Growth Tracker | AI/ML Personal Coaching Platform</title>
+  <meta name="description" content="AI/ML-powered personal communication coach evaluating speaking, writing and listening skills, tracking progress, and recommending targeted practice.">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/components.css">
+  <link rel="stylesheet" href="/static/css/dashboard.css">
+  
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Navigation Bar -->
+  <nav class="navbar">
+    <a href="#" class="brand">
+      <div class="brand-icon">⚡</div>
+      <span>Growth<span class="text-gradient">Tracker</span></span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="#" class="nav-link active" data-target="dashboardSection">Dashboard</a></li>
+      <li><a href="#" class="nav-link" data-target="speakingSection">Speaking Studio</a></li>
+      <li><a href="#" class="nav-link" data-target="writingSection">Writing Coach</a></li>
+      <li><a href="#" class="nav-link" data-target="adaptiveSection">Adaptive Plan</a></li>
+    </ul>
+    <div style="display: flex; gap: 1rem;">
+      <button class="btn btn-secondary" id="openLoginBtn">Sign In</button>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="app-container">
+
+    <!-- PAGE SECTION 1: DASHBOARD -->
+    <section id="dashboardSection" class="page-section">
+      <!-- Profile Banner -->
+      <div class="glass-panel profile-header">
+        <div class="profile-info">
+          <div class="profile-avatar">S</div>
+          <div>
+            <h1 class="profile-name">Communication Dashboard</h1>
+            <div class="profile-meta">
+              <span class="badge badge-primary">Mode: Professional / Software Engineer</span>
+              <span class="badge badge-cyan" id="currentLevelVal">Intermediate</span>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="document.querySelector('[data-target=\'speakingSection\']').click()">
+          🎙 Start New Practice
+        </button>
+      </div>
+
+      <!-- Top Metrics Cards -->
+      <div class="metrics-grid">
+        <div class="glass-panel metric-card">
+          <div class="metric-header">
+            <span>Overall Score</span>
+            <div class="metric-icon">🏆</div>
+          </div>
+          <div class="metric-value text-gradient" id="overallScoreVal">76.4</div>
+          <div class="metric-sub">Continuous ML Score Prediction</div>
+        </div>
+
+        <div class="glass-panel metric-card">
+          <div class="metric-header">
+            <span>Practice Streak</span>
+            <div class="metric-icon">🔥</div>
+          </div>
+          <div class="metric-value" style="color: var(--accent-amber);" id="streakVal">3 Days</div>
+          <div class="metric-sub">Daily Challenge Consistency</div>
+        </div>
+
+        <div class="glass-panel metric-card">
+          <div class="metric-header">
+            <span>Completed Sessions</span>
+            <div class="metric-icon">📊</div>
+          </div>
+          <div class="metric-value" style="color: var(--accent-cyan);" id="sessionsVal">14</div>
+          <div class="metric-sub">Speech & Writing Evaluations</div>
+        </div>
+
+        <div class="glass-panel metric-card">
+          <div class="metric-header">
+            <span>Primary Focus</span>
+            <div class="metric-icon">🎯</div>
+          </div>
+          <div class="metric-value" style="font-size: 1.5rem; color: var(--accent-rose);" id="weakestAreaVal">Fluency</div>
+          <div class="metric-sub">Targeted Weak-Area Diagnostics</div>
+        </div>
+      </div>
+
+      <!-- Analytics Charts Section -->
+      <div class="charts-grid">
+        <!-- Skill Radar Chart -->
+        <div class="glass-panel chart-card">
+          <div class="chart-title">
+            <span>Skill Breakdown</span>
+            <span class="badge badge-cyan">5 Metric Vectors</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="radarChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Historical Trend Line Chart -->
+        <div class="glass-panel chart-card">
+          <div class="chart-title">
+            <span>Longitudinal Growth & WPM</span>
+            <span class="badge badge-primary">Score vs WPM</span>
+          </div>
+          <div class="chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE SECTION 2: SPEAKING STUDIO -->
+    <section id="speakingSection" class="page-section" style="display: none;">
+      <div class="practice-grid">
+        <div class="glass-panel practice-card">
+          <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Interactive Speaking Studio</h2>
+          <p style="color: var(--text-muted); font-size: 0.95rem;">
+            Record your spoken audio or type a transcript. Our speech-to-text and NLP pipeline will extract WPM, filler word count, pause metrics, and generate an instant ML score.
+          </p>
+
+          <div class="recorder-box">
+            <button class="record-btn" id="recordBtn">🎙</button>
+            <div class="timer-display" id="recordingTimer">00:00</div>
+            <div style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.5rem;">
+              Click microphone to start recording speaking session
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Speech Transcript (Auto-generated or Manual)</label>
+            <textarea class="form-textarea" id="liveTranscript" placeholder="Your spoken transcript will appear here in real-time..."></textarea>
+          </div>
+
+          <button class="btn btn-primary" id="analyzeSpeechBtn" style="width: 100%;">
+            Analyze Speech Session
+          </button>
+        </div>
+
+        <div>
+          <div class="glass-panel practice-card">
+            <h3 style="font-size: 1.2rem; margin-bottom: 1rem;">Practice Topics & Scenarios</h3>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem;">
+              <li style="padding: 0.75rem; background: rgba(15,23,42,0.5); border-radius: 8px; border: 1px solid var(--border-glass);">
+                <strong style="color: var(--accent-cyan); display: block;">Daily Challenge (2 Mins)</strong>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">Explain how your favorite software algorithm or system works without using filler words.</span>
+              </li>
+              <li style="padding: 0.75rem; background: rgba(15,23,42,0.5); border-radius: 8px; border: 1px solid var(--border-glass);">
+                <strong style="color: var(--primary); display: block;">Self-Introduction</strong>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">60-second professional pitch for software developer/engineer role.</span>
+              </li>
+              <li style="padding: 0.75rem; background: rgba(15,23,42,0.5); border-radius: 8px; border: 1px solid var(--border-glass);">
+                <strong style="color: var(--accent-amber); display: block;">Technical Interview Q&A</strong>
+                <span style="font-size: 0.85rem; color: var(--text-muted);">"Describe a challenging bug you encountered and how you debugged it."</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Dynamic Analysis Output -->
+          <div id="speakingResults" style="display: none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE SECTION 3: WRITING COACH -->
+    <section id="writingSection" class="page-section" style="display: none;">
+      <div class="glass-panel practice-card" style="max-width: 900px; margin: 0 auto;">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Writing & Language Coach</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+          Enter an email, essay, or spoken answer draft. The NLP grammar engine will detect tenses, prepositions, article errors, subject-verb agreement issues, and provide professional vocabulary rewriting suggestions.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Written Text Input</label>
+          <textarea class="form-textarea" id="writingInput" style="min-height: 160px;" placeholder="Paste or type your text here (e.g., 'He have a good project and we discussed about the architecture yesterday...')."></textarea>
+        </div>
+
+        <button class="btn btn-accent" id="analyzeWritingBtn" style="width: 100%;">
+          Evaluate & Polish Text
+        </button>
+
+        <div id="writingResults" style="display: none;"></div>
+      </div>
+    </section>
+
+    <!-- PAGE SECTION 4: ADAPTIVE 7-DAY PLAN -->
+    <section id="adaptiveSection" class="page-section" style="display: none;">
+      <div class="glass-panel practice-card" style="max-width: 900px; margin: 0 auto;">
+        <h2 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Personalized 7-Day Practice Plan</h2>
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+          Generated automatically by our ML Adaptive Learning Engine based on your recent weak-area diagnostic.
+        </p>
+
+        <div id="weeklyPlanContainer" class="plan-list">
+          <!-- Dynamic 7-day items rendered via JavaScript -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- AUTHENTICATION MODAL -->
+  <div class="modal-overlay" id="authModal">
+    <div class="glass-panel modal-container">
+      <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;" id="authTitle">Sign In to Your Account</h3>
+
+      <!-- Login Form -->
+      <form id="loginForm">
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="loginEmail" value="demo@growthtracker.ai" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="loginPassword" value="demo1234" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Login</button>
+      </form>
+
+      <!-- Register Form (hidden by default) -->
+      <form id="registerForm" style="display: none;">
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" class="form-input" id="regName" placeholder="Neha Sharma" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" id="regEmail" placeholder="neha@example.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" id="regPassword" placeholder="••••••••" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">User Type</label>
+          <select class="form-select" id="regUserType">
+            <option value="Professional">Professional</option>
+            <option value="Student">Student</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Career Mode / Role</label>
+          <select class="form-select" id="regProfession">
+            <option value="Software Developer">Software Developer</option>
+            <option value="AI/ML Engineer">AI/ML Engineer</option>
+            <option value="Data Scientist">Data Scientist</option>
+            <option value="Business Analyst">Business Analyst</option>
+            <option value="HR">HR</option>
+            <option value="Sales">Sales</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Create Account</button>
+      </form>
+
+      <div style="text-align: center; margin-top: 1.25rem;">
+        <a href="#" id="toggleAuthMode" style="color: var(--accent-cyan); font-size: 0.85rem; text-decoration: none;">Don't have an account? Register here</a>
+      </div>
+      <button id="closeAuthModal" style="position: absolute; top: 1rem; right: 1rem; background: none; border: none; color: var(--text-muted); font-size: 1.25rem; cursor: pointer;">✕</button>
+    </div>
+  </div>
+
+  <!-- JavaScript Modules -->
+  <script src="/static/js/api.js"></script>
+  <script src="/static/js/charts.js"></script>
+  <script src="/static/js/recorder.js"></script>
+  <script src="/static/js/app.js"></script>
+
+</body>
+</html>

@@ -13,7 +13,7 @@
 <body>
 
   <!-- ─── NAVBAR ─── -->
-  <nav class="navbar">
+  <nav class="navbar" id="mainNavbar" style="display:none;">
     <a href="#" class="brand" onclick="showSection('dashboardSection')">
       <div class="brand-icon">⚡</div>
       <span>Growth<span class="text-gradient">Tracker</span></span>
@@ -25,48 +25,89 @@
       <li><a href="#" class="nav-link" data-target="adaptiveSection">Adaptive Plan</a></li>
     </ul>
     <div style="display:flex; gap:1rem; align-items:center;">
-      <!-- Shown when logged out -->
-      <button class="btn btn-secondary" id="openLoginBtn">Sign In</button>
-      <!-- Shown when logged in -->
-      <span id="navUserBadge" style="display:none; color:var(--accent-cyan); font-weight:600; font-size:0.9rem;"></span>
-      <button class="btn btn-ghost" id="logoutBtn" style="display:none;">Logout</button>
+      <span id="navUserBadge" style="color:var(--accent-cyan); font-weight:600; font-size:0.9rem;"></span>
+      <button class="btn btn-ghost" id="logoutBtn">Logout</button>
     </div>
   </nav>
 
-  <!-- ─── LANDING PAGE (Logged-out Hero) ─── -->
-  <section id="landingSection" class="page-section">
-    <div class="hero-wrapper">
-      <div class="hero-badge">🤖 AI/ML Powered Communication Coach</div>
-      <h1 class="hero-title">
-        Master the Art of<br><span class="text-gradient">Communication</span>
-      </h1>
-      <p class="hero-sub">
-        Analyse your speech, fix grammar, track your progress, and get a personalised 7-day practice plan — all powered by real ML logic running on a Python backend.
-      </p>
-      <div style="display:flex; gap:1rem; justify-content:center; flex-wrap:wrap;">
-        <button class="btn btn-primary btn-lg" id="heroGetStartedBtn">Get Started Free</button>
-        <button class="btn btn-secondary btn-lg" id="heroSignInBtn">Sign In</button>
+  <!-- ─── AUTHENTICATION PAGE (Logged-out) ─── -->
+  <section id="authSection" class="auth-page">
+    <div class="auth-container">
+      <div class="auth-left">
+        <div class="auth-branding">
+          <div class="brand-icon" style="width: 48px; height: 48px; font-size: 1.5rem;">⚡</div>
+          <span class="brand-title" style="font-size: 2rem; font-weight: 800; color: white;">Growth<span class="text-gradient">Tracker</span></span>
+        </div>
+        <h1 class="auth-heading">Master the Art of<br><span class="text-gradient">Communication</span></h1>
+        <p class="auth-subheading">Analyse your speech, fix grammar, track your progress, and get a personalised 7-day practice plan — all powered by AI/ML.</p>
+        <div class="auth-features">
+          <div class="auth-feature">🎙 Real-time Speech Analysis</div>
+          <div class="auth-feature">✍️ Advanced Grammar Coach</div>
+          <div class="auth-feature">📈 Personalised Growth Dashboard</div>
+        </div>
       </div>
-      <div class="hero-features">
-        <div class="hero-feature-card">
-          <div class="feature-icon">🎙</div>
-          <strong>Speech Analysis</strong>
-          <p>WPM, filler words, fluency & confidence scores in real-time.</p>
-        </div>
-        <div class="hero-feature-card">
-          <div class="feature-icon">✍️</div>
-          <strong>Grammar Coach</strong>
-          <p>Detect subject-verb errors, preposition misuse, and vocabulary gaps.</p>
-        </div>
-        <div class="hero-feature-card">
-          <div class="feature-icon">📈</div>
-          <strong>Growth Dashboard</strong>
-          <p>Track skill vectors over time with live charts pulled from your session history.</p>
-        </div>
-        <div class="hero-feature-card">
-          <div class="feature-icon">🗓</div>
-          <strong>Adaptive 7-Day Plan</strong>
-          <p>Auto-generated personalised practice schedule targeting your weakest areas.</p>
+      <div class="auth-right">
+        <div class="glass-panel auth-card">
+          <h3 style="font-size:1.5rem; margin-bottom:1.5rem; text-align:center;" id="authTitle">Sign In to Your Account</h3>
+
+          <!-- Login Form -->
+          <form id="loginForm">
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" id="loginEmail" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" required>
+            </div>
+            <div id="loginError" class="form-error" style="display:none;"></div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:0.5rem;" id="loginSubmitBtn">Login</button>
+          </form>
+
+          <!-- Register Form -->
+          <form id="registerForm" style="display:none;">
+            <div class="form-group">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-input" id="regName" placeholder="Neha Sharma" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Email Address</label>
+              <input type="email" class="form-input" id="regEmail" placeholder="neha@example.com" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password</label>
+              <input type="password" class="form-input" id="regPassword" placeholder="Min 6 characters" required>
+            </div>
+            <div style="display:flex; gap:1rem;">
+              <div class="form-group" style="flex:1;">
+                <label class="form-label">User Type</label>
+                <select class="form-select" id="regUserType">
+                  <option value="Professional">Professional</option>
+                  <option value="Student">Student</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div class="form-group" style="flex:1;">
+                <label class="form-label">Career Role</label>
+                <select class="form-select" id="regProfession">
+                  <option value="Software Developer">Software Developer</option>
+                  <option value="AI/ML Engineer">AI/ML Engineer</option>
+                  <option value="Data Scientist">Data Scientist</option>
+                  <option value="Business Analyst">Business Analyst</option>
+                  <option value="HR">HR</option>
+                  <option value="Sales">Sales</option>
+                </select>
+              </div>
+            </div>
+            <div id="registerError" class="form-error" style="display:none;"></div>
+            <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:0.5rem;" id="registerSubmitBtn">Create Account</button>
+          </form>
+
+          <div style="text-align:center; margin-top:1.5rem;">
+            <a href="#" id="toggleAuthMode" style="color:var(--accent-cyan); font-size:0.9rem; text-decoration:none; font-weight:600; transition:var(--transition);">
+              Don't have an account? Register here
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -234,70 +275,6 @@
 
   </main>
 
-  <!-- ─── AUTH MODAL ─── -->
-  <div class="modal-overlay" id="authModal">
-    <div class="glass-panel modal-container">
-      <h3 style="font-size:1.5rem; margin-bottom:1.5rem;" id="authTitle">Sign In to Your Account</h3>
-
-      <!-- Login Form -->
-      <form id="loginForm">
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="loginEmail" placeholder="you@example.com" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" required>
-        </div>
-        <div id="loginError" class="form-error" style="display:none;"></div>
-        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;" id="loginSubmitBtn">Login</button>
-      </form>
-
-      <!-- Register Form -->
-      <form id="registerForm" style="display:none;">
-        <div class="form-group">
-          <label class="form-label">Full Name</label>
-          <input type="text" class="form-input" id="regName" placeholder="Neha Sharma" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Email Address</label>
-          <input type="email" class="form-input" id="regEmail" placeholder="neha@example.com" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Password</label>
-          <input type="password" class="form-input" id="regPassword" placeholder="Min 6 characters" required>
-        </div>
-        <div class="form-group">
-          <label class="form-label">User Type</label>
-          <select class="form-select" id="regUserType">
-            <option value="Professional">Professional</option>
-            <option value="Student">Student</option>
-            <option value="Other">Other</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Career Role</label>
-          <select class="form-select" id="regProfession">
-            <option value="Software Developer">Software Developer</option>
-            <option value="AI/ML Engineer">AI/ML Engineer</option>
-            <option value="Data Scientist">Data Scientist</option>
-            <option value="Business Analyst">Business Analyst</option>
-            <option value="HR">HR</option>
-            <option value="Sales">Sales</option>
-          </select>
-        </div>
-        <div id="registerError" class="form-error" style="display:none;"></div>
-        <button type="submit" class="btn btn-primary" style="width:100%; margin-top:0.5rem;" id="registerSubmitBtn">Create Account</button>
-      </form>
-
-      <div style="text-align:center; margin-top:1.25rem;">
-        <a href="#" id="toggleAuthMode" style="color:var(--accent-cyan); font-size:0.85rem; text-decoration:none;">
-          Don't have an account? Register here
-        </a>
-      </div>
-      <button id="closeAuthModal" style="position:absolute; top:1rem; right:1rem; background:none; border:none; color:var(--text-muted); font-size:1.25rem; cursor:pointer;">✕</button>
-    </div>
-  </div>
 
   <script src="/static/js/api.js"></script>
   <script src="/static/js/charts.js"></script>

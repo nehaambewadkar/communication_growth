@@ -41,27 +41,22 @@ function applyAuthState(user) {
   currentUser = user;
 
   const isLoggedIn = !!user;
-  const landingSection = document.getElementById('landingSection');
+  const authSection    = document.getElementById('authSection');
   const appContainer   = document.getElementById('appContainer');
-  const openLoginBtn   = document.getElementById('openLoginBtn');
-  const logoutBtn      = document.getElementById('logoutBtn');
+  const mainNavbar     = document.getElementById('mainNavbar');
   const navUserBadge   = document.getElementById('navUserBadge');
 
   if (isLoggedIn) {
-    landingSection.style.display = 'none';
+    authSection.style.display = 'none';
     appContainer.style.display = 'block';
-    openLoginBtn.style.display = 'none';
-    logoutBtn.style.display = 'block';
-    navUserBadge.style.display = 'inline';
+    mainNavbar.style.display = 'flex';
     navUserBadge.textContent = `👤 ${user.full_name.split(' ')[0]}`;
     showSection('dashboardSection');
     loadDashboardData();
   } else {
-    landingSection.style.display = 'block';
+    authSection.style.display = 'flex';
     appContainer.style.display = 'none';
-    openLoginBtn.style.display = 'block';
-    logoutBtn.style.display = 'none';
-    navUserBadge.style.display = 'none';
+    mainNavbar.style.display = 'none';
   }
 }
 
@@ -319,32 +314,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // --- Hero buttons ---
-  document.getElementById('heroGetStartedBtn')?.addEventListener('click', () => {
-    document.getElementById('authModal').classList.add('active');
-    // Switch to register
-    document.getElementById('loginForm').style.display = 'none';
-    document.getElementById('registerForm').style.display = 'block';
-    document.getElementById('authTitle').textContent = 'Create Growth Account';
-    document.getElementById('toggleAuthMode').textContent = 'Already have an account? Sign in';
-  });
-  document.getElementById('heroSignInBtn')?.addEventListener('click', () => {
-    document.getElementById('authModal').classList.add('active');
-  });
-
-  // --- Open / close auth modal ---
-  document.getElementById('openLoginBtn')?.addEventListener('click', () => {
-    document.getElementById('authModal').classList.add('active');
-  });
-  document.getElementById('closeAuthModal')?.addEventListener('click', () => {
-    document.getElementById('authModal').classList.remove('active');
-  });
-  document.getElementById('authModal')?.addEventListener('click', e => {
-    if (e.target === document.getElementById('authModal')) {
-      document.getElementById('authModal').classList.remove('active');
-    }
-  });
-
   // --- Toggle login / register ---
   document.getElementById('toggleAuthMode')?.addEventListener('click', e => {
     e.preventDefault();
@@ -379,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const res = await ApiClient.login(email, pass);
       localStorage.setItem('token', res.access_token);
-      document.getElementById('authModal').classList.remove('active');
       const user = await ApiClient.getMe();
       applyAuthState(user);
       showToast(`Welcome back, ${user.full_name.split(' ')[0]}! 🎉`, 'success');
@@ -411,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
       await ApiClient.register(payload);
       const res  = await ApiClient.login(payload.email, payload.password);
       localStorage.setItem('token', res.access_token);
-      document.getElementById('authModal').classList.remove('active');
       const user = await ApiClient.getMe();
       applyAuthState(user);
       showToast(`Account created! Welcome, ${user.full_name.split(' ')[0]}! 🚀`, 'success');

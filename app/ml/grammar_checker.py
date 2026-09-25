@@ -50,6 +50,18 @@ GRAMMAR_RULES = [
         "pattern": r'\brepeat\s+again\b',
         "replacement": "repeat",
         "explanation": "'Repeat' implies doing something again; 'again' is redundant."
+    },
+    {
+        "category": "Capitalization",
+        "pattern": r'\bi\b',
+        "replacement": "I",
+        "explanation": "The pronoun 'I' should always be capitalized."
+    },
+    {
+        "category": "Spelling/Typo",
+        "pattern": r'([a-zA-Z])\1{2,}',
+        "replacement": r'\1',
+        "explanation": "Avoid repeating a letter unnecessarily (e.g., 'hiii' to 'hi')."
     }
 ]
 

@@ -101,33 +101,88 @@ async function loadDashboardData() {
       noMsg.style.display = dash.sessions_completed === 0 ? 'block' : 'none';
     }
 
-    // Weekly plan
-    renderWeeklyPlan(recs?.weekly_plan || []);
+    // Weekly plan (if already on adaptive page, refresh it too)
+    renderWeeklyPlan(recs?.weekly_plan || [], dash?.weakest_area);
+    adaptivePlanLoaded = true;
 
   } catch (err) {
     console.warn('Dashboard load failed:', err.message);
   }
 }
 
-function renderWeeklyPlan(plan) {
+// Type → CSS class mapping
+const TYPE_CLASS = {
+  speaking: 'speaking', writing: 'writing', reading: 'reading',
+  vocabulary: 'vocabulary', vocab: 'vocabulary', review: 'review', practice: 'speaking'
+};
+
+const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+function renderWeeklyPlan(plan, focusArea) {
   const container = document.getElementById('weeklyPlanContainer');
   if (!container) return;
 
+  // Update stats bar
+  const focusEl    = document.getElementById('planFocusArea');
+  const countEl    = document.getElementById('planActivityCount');
+  const diffEl     = document.getElementById('planDifficulty');
+  if (focusEl)  focusEl.textContent  = focusArea || '—';
+  if (countEl)  countEl.textContent  = plan?.length ? `${plan.length} Tasks` : '—';
+  if (diffEl)   diffEl.textContent   = plan?.length ? 'Personalised' : '—';
+
   if (!plan || plan.length === 0) {
-    container.innerHTML = '<p style="color:var(--text-muted); text-align:center;">Complete a session to generate your personalised plan.</p>';
+    container.innerHTML = `
+      <div class="adaptive-skeleton-msg" style="flex-direction:column; gap:0.5rem;">
+        <span style="font-size:2rem;">🎯</span>
+        <span>Complete a session to generate your personalised plan.</span>
+      </div>`;
     return;
   }
 
-  container.innerHTML = plan.map((p, i) => `
-    <div class="plan-item">
-      <div>
-        <div class="plan-day">Day ${i + 1} — ${p.day || ''}</div>
-        <div class="plan-title">${p.activity}</div>
-        ${p.description ? `<div class="plan-desc">${p.description}</div>` : ''}
+  container.innerHTML = plan.map((p, i) => {
+    const rawType  = (p.type || 'speaking').toLowerCase().trim();
+    const typeKey  = TYPE_CLASS[rawType] || 'speaking';
+    const dayLabel = p.day || DAY_NAMES[i % 7];
+    const delay    = (i * 0.07).toFixed(2);
+    return `
+    <div class="day-card type-${typeKey}" style="animation-delay:${delay}s;">
+      <div class="day-card-num">${String(i + 1).padStart(2, '0')}</div>
+      <div class="day-card-day">Day ${i + 1} · ${dayLabel}</div>
+      <div class="day-card-activity">${p.activity}</div>
+      ${p.description ? `<div class="day-card-desc">${p.description}</div>` : ''}
+      <div class="day-card-footer">
+        <span class="day-type-badge ${typeKey}">${p.type || 'Practice'}</span>
+        ${p.duration ? `<span class="day-duration-pill">⏱ ${p.duration}</span>` : ''}
       </div>
-      <span class="badge badge-cyan">${p.type || 'Practice'} ${p.duration ? `(${p.duration})` : ''}</span>
-    </div>
-  `).join('');
+    </div>`;
+  }).join('');
+}
+
+let adaptivePlanLoaded = false;
+
+async function loadAdaptivePlan(force = false) {
+  if (!force && adaptivePlanLoaded) return;
+  const container = document.getElementById('weeklyPlanContainer');
+  const btn       = document.getElementById('regeneratePlanBtn');
+  if (container) {
+    container.innerHTML = `<div class="adaptive-skeleton-msg"><div class="skeleton-spinner"></div><span>Generating your personalised plan…</span></div>`;
+  }
+  if (btn) { btn.disabled = true; btn.innerHTML = '⏳ Regenerating…'; }
+
+  try {
+    const [recs, dash] = await Promise.all([
+      ApiClient.getRecommendations(),
+      ApiClient.getDashboard()
+    ]);
+    const plan = recs?.weekly_plan || [];
+    renderWeeklyPlan(plan, dash?.weakest_area);
+    adaptivePlanLoaded = true;
+  } catch (err) {
+    if (container) container.innerHTML = `<div class="adaptive-skeleton-msg">⚠️ Failed to load plan. Please try again.</div>`;
+    showToast('Could not load adaptive plan: ' + err.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = '🔄 Regenerate Plan'; }
+  }
 }
 
 // ─────────────────────────────────────────
@@ -311,7 +366,14 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
       const target = link.getAttribute('data-target');
       if (target) showSection(target);
+      // Lazy-load adaptive plan on first visit
+      if (target === 'adaptiveSection') loadAdaptivePlan();
     });
+  });
+
+  // --- Regenerate Plan button ---
+  document.getElementById('regeneratePlanBtn')?.addEventListener('click', () => {
+    loadAdaptivePlan(true);
   });
 
   // --- Toggle login / register ---

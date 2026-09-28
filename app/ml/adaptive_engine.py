@@ -1,3 +1,4 @@
+import random
 from typing import Dict, List, Any
 
 RECOMMENDED_EXERCISES = {
@@ -29,7 +30,7 @@ class AdaptiveLearningEngine:
         Generates a targeted exercise recommendation based on identified weak area.
         """
         exercises = RECOMMENDED_EXERCISES.get(weak_area, RECOMMENDED_EXERCISES["Fluency"])
-        chosen = exercises[0]
+        chosen = random.choice(exercises)
         return {
             "exercise_type": chosen["type"],
             "title": chosen["title"],

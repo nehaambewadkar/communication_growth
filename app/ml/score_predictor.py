@@ -92,12 +92,18 @@ class CommunicationMLModel:
         weak_area = min(component_scores, key=component_scores.get)
         strong_area = max(component_scores, key=component_scores.get)
 
+        # Generate a dynamic pseudo-confidence score (e.g., higher if score is very clear)
+        base_confidence = 0.85
+        # Add a bit of variation based on wpm and grammar
+        confidence_boost = min(0.14, (grammar_score / 1000) + (min(wpm, 200) / 2000))
+        confidence = round(base_confidence + confidence_boost, 2)
+
         return {
             "predicted_score": predicted_score,
             "predicted_level": predicted_level,
             "weak_area": weak_area,
             "strong_area": strong_area,
-            "confidence": 0.94,
+            "confidence": confidence,
             "model_version": "v1.0.0-rf"
         }
 

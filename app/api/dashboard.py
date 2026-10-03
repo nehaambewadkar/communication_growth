@@ -68,7 +68,7 @@ def get_dashboard(
             "Grammar": round(latest.grammar_score, 1),
             "Vocabulary": round(latest.vocabulary_score, 1),
             "Clarity": round(latest.clarity_score, 1),
-            "Confidence": round(latest.confidence_score, 1)
+            "Filler Control": max(0.0, 100.0 - (latest.filler_count * 5))
         }
         strongest_area = max(comp_scores, key=comp_scores.get)
     else:
@@ -81,7 +81,7 @@ def get_dashboard(
             "Grammar": 0.0,
             "Vocabulary": 0.0,
             "Clarity": 0.0,
-            "Confidence": 0.0
+            "Filler Control": 0.0
         }
 
     # Trend: only real sessions, no synthetic seed data

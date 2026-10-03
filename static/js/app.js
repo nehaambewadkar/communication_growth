@@ -81,11 +81,19 @@ async function loadDashboardData() {
       currentUser?.user_type || 'Professional';
     document.getElementById('currentLevelVal').textContent = dash.current_level || 'Intermediate';
 
-    // Metric cards
+    // Metric cards - Communication Profile
     document.getElementById('overallScoreVal').textContent = dash.overall_score ?? '—';
-    document.getElementById('streakVal').textContent        = (dash.practice_streak ?? '—') + (dash.practice_streak != null ? ' Days' : '');
-    document.getElementById('sessionsVal').textContent      = dash.sessions_completed ?? '—';
-    document.getElementById('weakestAreaVal').textContent   = dash.weakest_area || '—';
+    
+    if (dash.component_scores) {
+      document.getElementById('fluencyScoreVal').textContent = dash.component_scores['Fluency'] ?? '—';
+      document.getElementById('grammarScoreVal').textContent = dash.component_scores['Grammar'] ?? '—';
+      document.getElementById('vocabScoreVal').textContent = dash.component_scores['Vocabulary'] ?? '—';
+      document.getElementById('clarityScoreVal').textContent = dash.component_scores['Clarity'] ?? '—';
+      document.getElementById('fillerScoreVal').textContent = dash.component_scores['Filler Control'] ?? '—';
+    }
+
+    document.getElementById('weakestAreaVal').textContent = dash.weakest_area || '—';
+    document.getElementById('todayPracticeVal').textContent = dash.recommended_next_activity || 'Start Practice';
 
     // Charts
     if (dash.component_scores && Object.keys(dash.component_scores).length > 0) {
@@ -494,6 +502,174 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('analyzeSpeechBtn')?.addEventListener('click', handleSpeechAnalysis);
   document.getElementById('analyzeWritingBtn')?.addEventListener('click', handleWritingAnalysis);
+
+  // --- Same Question Improvement Mode ---
+  let attempt1Data = null;
+  let attempt2Data = null;
+  
+  document.getElementById('analyzeAttempt1Btn')?.addEventListener('click', async () => {
+    const transcript = document.getElementById('transcript1').value.trim();
+    if (!transcript) return showToast('Please provide a transcript for Attempt 1', 'error');
+    
+    const btn = document.getElementById('analyzeAttempt1Btn');
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    
+    try {
+      attempt1Data = await ApiClient.analyzeSpeech(transcript, 30, 'Tell me about yourself.');
+      document.getElementById('attempt1Feedback').style.display = 'block';
+      
+      const problemsEl = document.getElementById('attempt1Problems');
+      let problemsHTML = '';
+      if (attempt1Data.filler_count > 3) problemsHTML += '<li>🔴 Too many filler words</li>';
+      if (attempt1Data.wpm < 100) problemsHTML += '<li>🔴 Speaking rate too slow</li>';
+      if (attempt1Data.grammar_score < 70) problemsHTML += '<li>🔴 Grammar errors detected</li>';
+      if (attempt1Data.vocabulary_score < 70) problemsHTML += '<li>🔴 Repeated vocabulary</li>';
+      if (problemsHTML === '') problemsHTML = '<li>🟢 Good attempt! Try to refine your delivery.</li>';
+      
+      problemsEl.innerHTML = problemsHTML;
+      btn.style.display = 'none';
+      showToast('Attempt 1 analyzed. Please try Attempt 2!', 'info');
+    } catch (e) {
+      showToast('Analysis failed', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Analyze Attempt 1';
+    }
+  });
+
+  document.getElementById('analyzeAttempt2Btn')?.addEventListener('click', async () => {
+    const transcript = document.getElementById('transcript2').value.trim();
+    if (!transcript) return showToast('Please provide a transcript for Attempt 2', 'error');
+    
+    const btn = document.getElementById('analyzeAttempt2Btn');
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    
+    try {
+      attempt2Data = await ApiClient.analyzeSpeech(transcript, 30, 'Tell me about yourself.');
+      document.getElementById('comparisonResults').style.display = 'block';
+      
+      const tbody = document.getElementById('comparisonTableBody');
+      tbody.innerHTML = `
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 1rem;">Filler words</td>
+          <td style="padding: 1rem;">${attempt1Data.filler_count}</td>
+          <td style="padding: 1rem; color: ${attempt2Data.filler_count < attempt1Data.filler_count ? 'var(--accent-emerald)' : 'inherit'}">${attempt2Data.filler_count}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 1rem;">Words/min</td>
+          <td style="padding: 1rem;">${attempt1Data.wpm}</td>
+          <td style="padding: 1rem; color: ${attempt2Data.wpm > attempt1Data.wpm ? 'var(--accent-emerald)' : 'inherit'}">${attempt2Data.wpm}</td>
+        </tr>
+        <tr style="border-bottom: 1px solid var(--border-color);">
+          <td style="padding: 1rem;">Grammar Score</td>
+          <td style="padding: 1rem;">${Math.round(attempt1Data.grammar_score)}</td>
+          <td style="padding: 1rem; color: ${attempt2Data.grammar_score > attempt1Data.grammar_score ? 'var(--accent-emerald)' : 'inherit'}">${Math.round(attempt2Data.grammar_score)}</td>
+        </tr>
+        <tr>
+          <td style="padding: 1rem;">Vocabulary Score</td>
+          <td style="padding: 1rem;">${Math.round(attempt1Data.vocabulary_score)}</td>
+          <td style="padding: 1rem; color: ${attempt2Data.vocabulary_score > attempt1Data.vocabulary_score ? 'var(--accent-emerald)' : 'inherit'}">${Math.round(attempt2Data.vocabulary_score)}</td>
+        </tr>
+      `;
+      
+      let improved = 0;
+      if (attempt2Data.filler_count < attempt1Data.filler_count) improved++;
+      if (attempt2Data.wpm > attempt1Data.wpm) improved++;
+      if (attempt2Data.grammar_score > attempt1Data.grammar_score) improved++;
+      if (attempt2Data.vocabulary_score > attempt1Data.vocabulary_score) improved++;
+      
+      document.getElementById('improvementSummary').textContent = `You improved in ${improved} areas!`;
+      btn.style.display = 'none';
+    } catch (e) {
+      showToast('Analysis failed', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Analyze Attempt 2';
+    }
+  });
+
+  // --- AI Interview Practice Mode ---
+  const interviewQuestions = {
+    'HR Interview': ['Tell me about yourself.', 'What are your strengths and weaknesses?', 'Where do you see yourself in 5 years?'],
+    'Technical Interview': ['Describe a challenging bug you fixed.', 'Explain how an API works.', 'How do you optimize a slow database query?'],
+    'Behavioral Interview': ['Tell me about a time you disagreed with a coworker.', 'Describe a time you failed.', 'How do you handle tight deadlines?'],
+    'General Communication': ['What is your favorite book and why?', 'Describe your ideal weekend.', 'If you could travel anywhere, where would you go?']
+  };
+  
+  let currentInterviewType = '';
+  let currentQuestionIndex = 0;
+  let interviewScores = [];
+  
+  document.getElementById('startInterviewBtn')?.addEventListener('click', () => {
+    currentInterviewType = document.getElementById('interviewType').value;
+    currentQuestionIndex = 0;
+    interviewScores = [];
+    
+    document.getElementById('interviewSetup').style.display = 'none';
+    document.getElementById('interviewActive').style.display = 'block';
+    
+    loadInterviewQuestion();
+  });
+  
+  function loadInterviewQuestion() {
+    const questions = interviewQuestions[currentInterviewType];
+    if (currentQuestionIndex >= questions.length) {
+      finishInterview();
+      return;
+    }
+    
+    document.getElementById('interviewQuestionTitle').textContent = `Question ${currentQuestionIndex + 1} of ${questions.length}`;
+    document.getElementById('interviewQuestionText').textContent = questions[currentQuestionIndex];
+    document.getElementById('transcriptInterview').value = '';
+  }
+  
+  document.getElementById('submitInterviewAnswerBtn')?.addEventListener('click', async () => {
+    const transcript = document.getElementById('transcriptInterview').value.trim();
+    if (!transcript) return showToast('Please answer the question', 'error');
+    
+    const btn = document.getElementById('submitInterviewAnswerBtn');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    
+    try {
+      const data = await ApiClient.analyzeSpeech(transcript, 45, document.getElementById('interviewQuestionText').textContent);
+      interviewScores.push(data);
+      
+      currentQuestionIndex++;
+      loadInterviewQuestion();
+    } catch (e) {
+      showToast('Submission failed', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Submit Answer';
+    }
+  });
+  
+  function finishInterview() {
+    document.getElementById('interviewActive').style.display = 'none';
+    document.getElementById('interviewReport').style.display = 'block';
+    
+    let totalComm = 0, totalAns = 0, totalClarity = 0, totalVocab = 0;
+    interviewScores.forEach(s => {
+      totalComm += s.fluency_score;
+      totalAns += s.overall_score;
+      totalClarity += s.clarity_score;
+      totalVocab += s.vocabulary_score;
+    });
+    
+    const n = interviewScores.length || 1;
+    const avgComm = Math.round(totalComm / n);
+    const avgAns = Math.round(totalAns / n);
+    const avgClarity = Math.round(totalClarity / n);
+    const avgVocab = Math.round(totalVocab / n);
+    const readiness = Math.round((avgComm + avgAns + avgClarity + avgVocab) / 4);
+    
+    document.getElementById('interviewReadinessVal').textContent = `${readiness}%`;
+    document.getElementById('interviewCommVal').textContent = `${avgComm}%`;
+    document.getElementById('interviewAnswerVal').textContent = `${avgAns}%`;
+  }
 
   // ─── AUTO-LOGIN if token exists ───
   const savedToken = localStorage.getItem('token');

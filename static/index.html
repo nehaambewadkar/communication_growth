@@ -134,27 +134,60 @@
         </button>
       </div>
 
-      <!-- Metric Cards -->
+      <!-- DASHBOARD NEW LAYOUT -->
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div class="glass-panel" style="display: inline-block; padding: 1.5rem 3rem; border-radius: var(--radius-lg);">
+          <div style="font-size: 1rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem;">Communication Score</div>
+          <div class="text-gradient" style="font-size: 3.5rem; font-weight: 800; line-height: 1;" id="overallScoreVal">—</div>
+        </div>
+      </div>
+
       <div class="metrics-grid">
         <div class="glass-panel metric-card">
-          <div class="metric-header"><span>Overall Score</span><div class="metric-icon">🏆</div></div>
-          <div class="metric-value text-gradient" id="overallScoreVal">—</div>
-          <div class="metric-sub">ML Predicted Score</div>
+          <div class="metric-header"><span>Fluency</span><div class="metric-icon">🗣️</div></div>
+          <div class="metric-value" style="color:var(--accent-cyan);" id="fluencyScoreVal">—</div>
+          <div class="metric-sub">Words/minute, pauses</div>
         </div>
         <div class="glass-panel metric-card">
-          <div class="metric-header"><span>Practice Streak</span><div class="metric-icon">🔥</div></div>
-          <div class="metric-value" style="color:var(--accent-amber);" id="streakVal">—</div>
-          <div class="metric-sub">Days Active</div>
+          <div class="metric-header"><span>Grammar</span><div class="metric-icon">🔤</div></div>
+          <div class="metric-value" style="color:var(--accent-amber);" id="grammarScoreVal">—</div>
+          <div class="metric-sub">Grammar errors</div>
         </div>
         <div class="glass-panel metric-card">
-          <div class="metric-header"><span>Sessions Done</span><div class="metric-icon">📊</div></div>
-          <div class="metric-value" style="color:var(--accent-cyan);" id="sessionsVal">—</div>
-          <div class="metric-sub">Speech & Writing</div>
+          <div class="metric-header"><span>Vocabulary</span><div class="metric-icon">📚</div></div>
+          <div class="metric-value" style="color:var(--accent-rose);" id="vocabScoreVal">—</div>
+          <div class="metric-sub">Unique words</div>
         </div>
         <div class="glass-panel metric-card">
-          <div class="metric-header"><span>Focus Area</span><div class="metric-icon">🎯</div></div>
-          <div class="metric-value" style="font-size:1.4rem; color:var(--accent-rose);" id="weakestAreaVal">—</div>
-          <div class="metric-sub">Weakest Skill</div>
+          <div class="metric-header"><span>Clarity</span><div class="metric-icon">🎯</div></div>
+          <div class="metric-value" style="color:var(--primary);" id="clarityScoreVal">—</div>
+          <div class="metric-sub">Response structure</div>
+        </div>
+        <div class="glass-panel metric-card">
+          <div class="metric-header"><span>Filler Control</span><div class="metric-icon">💬</div></div>
+          <div class="metric-value" style="color:var(--text-muted);" id="fillerScoreVal">—</div>
+          <div class="metric-sub">um, uh, like</div>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem;">
+        <div class="glass-panel" style="text-align: center;">
+          <div style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">YOUR TOP WEAKNESS</div>
+          <div style="font-size: 1.5rem; color: var(--accent-rose); font-weight: bold;" id="weakestAreaVal">—</div>
+        </div>
+        <div class="glass-panel" style="text-align: center; cursor: pointer;" onclick="showSection('adaptiveSection')">
+          <div style="font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem;">TODAY'S PRACTICE</div>
+          <div style="font-size: 1.2rem; color: var(--accent-cyan); font-weight: bold;" id="todayPracticeVal">Loading...</div>
+        </div>
+      </div>
+
+      <div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+        <h3 style="font-size: 1.2rem; color: var(--text-muted);">Quick Actions</h3>
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+          <button class="btn btn-outline" style="justify-content: center;" onclick="showSection('dashboardSection')">📈 Progress</button>
+          <button class="btn btn-outline" style="justify-content: center;" onclick="showSection('adaptiveSection')">📅 Practice Plan</button>
+          <button class="btn btn-outline" style="justify-content: center;" onclick="showSection('interviewSection')">🎤 Interview Mode</button>
+          <button class="btn btn-outline" style="justify-content: center;" onclick="showSection('improveSection')">🔄 Improve Response</button>
         </div>
       </div>
 
@@ -237,6 +270,125 @@
           </div>
           <!-- Analysis output -->
           <div id="speakingResults" style="display:none; margin-top:1rem;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- IMPROVE RESPONSE (Same Question Improvement) -->
+    <section id="improveSection" class="page-section" style="display:none;">
+      <div class="glass-panel practice-card" style="max-width:900px; margin:0 auto;">
+        <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">🔄 Same Question Improvement</h2>
+        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+          Practice answering the same question twice and see your progress. The system will analyse your first attempt, give you suggestions, and let you try again.
+        </p>
+
+        <div class="form-group">
+          <label class="form-label">Question</label>
+          <input type="text" class="form-input" id="improveQuestion" value="Tell me about yourself." readonly>
+        </div>
+
+        <div id="attempt1Container">
+          <h3 style="margin-bottom: 1rem;">Attempt 1</h3>
+          <div class="recorder-box">
+            <button class="record-btn" id="recordAttempt1Btn">🎙</button>
+            <div class="timer-display" id="recordingTimer1">00:00</div>
+          </div>
+          <div class="form-group">
+            <textarea class="form-textarea" id="transcript1" placeholder="Speak into the mic or type your transcript..."></textarea>
+          </div>
+          <button class="btn btn-primary" id="analyzeAttempt1Btn" style="width:100%;">Analyze Attempt 1</button>
+        </div>
+
+        <div id="attempt1Feedback" style="display:none; margin-top:1.5rem;">
+          <h3 style="color:var(--accent-rose); margin-bottom: 0.5rem;">Problems Detected</h3>
+          <ul class="suggestion-list" id="attempt1Problems">
+          </ul>
+          
+          <h3 style="margin-top:1.5rem; margin-bottom: 1rem;">Attempt 2</h3>
+          <div class="recorder-box">
+            <button class="record-btn" id="recordAttempt2Btn">🎙</button>
+            <div class="timer-display" id="recordingTimer2">00:00</div>
+          </div>
+          <div class="form-group">
+            <textarea class="form-textarea" id="transcript2" placeholder="Speak into the mic or type your transcript..."></textarea>
+          </div>
+          <button class="btn btn-primary" id="analyzeAttempt2Btn" style="width:100%;">Analyze Attempt 2</button>
+        </div>
+
+        <div id="comparisonResults" style="display:none; margin-top:2rem;">
+          <h3 style="margin-bottom:1rem; text-align:center;">Improvement Results</h3>
+          <p id="improvementSummary" style="text-align:center; color:var(--accent-emerald); font-weight:bold; margin-bottom:1rem;"></p>
+          <table style="width:100%; border-collapse: collapse; text-align: left;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border-color);">
+                <th style="padding: 1rem;">Metric</th>
+                <th style="padding: 1rem;">Attempt 1</th>
+                <th style="padding: 1rem;">Attempt 2</th>
+              </tr>
+            </thead>
+            <tbody id="comparisonTableBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI INTERVIEW MODE -->
+    <section id="interviewSection" class="page-section" style="display:none;">
+      <div class="glass-panel practice-card" style="max-width:900px; margin:0 auto;">
+        <h2 style="font-size:1.5rem; margin-bottom:0.5rem;">🎤 AI Interview Practice</h2>
+        <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:1.5rem;">
+          Choose an interview type and practice answering questions sequentially.
+        </p>
+        
+        <div id="interviewSetup">
+          <div class="form-group">
+            <label class="form-label">Interview Type</label>
+            <select class="form-select" id="interviewType">
+              <option value="HR Interview">HR Interview</option>
+              <option value="Technical Interview">Technical Interview</option>
+              <option value="Behavioral Interview">Behavioral Interview</option>
+              <option value="General Communication">General Communication</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="startInterviewBtn" style="width:100%;">Start Interview</button>
+        </div>
+
+        <div id="interviewActive" style="display:none; margin-top:1.5rem;">
+          <h3 id="interviewQuestionTitle" style="margin-bottom: 1rem; color:var(--accent-cyan);">Question 1</h3>
+          <p id="interviewQuestionText" style="font-size: 1.2rem; margin-bottom: 1.5rem;">Loading...</p>
+          
+          <div class="recorder-box">
+            <button class="record-btn" id="recordInterviewBtn">🎙</button>
+            <div class="timer-display" id="recordingTimerInterview">00:00</div>
+          </div>
+          <div class="form-group">
+            <textarea class="form-textarea" id="transcriptInterview" placeholder="Speak or type your answer..."></textarea>
+          </div>
+          <button class="btn btn-primary" id="submitInterviewAnswerBtn" style="width:100%;">Submit Answer</button>
+        </div>
+
+        <div id="interviewReport" style="display:none; margin-top:2rem;">
+          <h3 style="text-align:center; margin-bottom:1.5rem;">Interview Report</h3>
+          
+          <div class="metrics-grid">
+            <div class="glass-panel metric-card">
+              <div class="metric-header"><span>Interview Readiness</span></div>
+              <div class="metric-value text-gradient" id="interviewReadinessVal">—</div>
+            </div>
+            <div class="glass-panel metric-card">
+              <div class="metric-header"><span>Communication</span></div>
+              <div class="metric-value" style="color:var(--accent-cyan);" id="interviewCommVal">—</div>
+            </div>
+            <div class="glass-panel metric-card">
+              <div class="metric-header"><span>Answer Quality</span></div>
+              <div class="metric-value" style="color:var(--accent-amber);" id="interviewAnswerVal">—</div>
+            </div>
+          </div>
+          
+          <div style="text-align:center; margin-top:2rem;">
+            <button class="btn btn-outline" onclick="location.reload()">Finish Interview</button>
+          </div>
         </div>
       </div>
     </section>
